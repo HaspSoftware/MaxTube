@@ -295,62 +295,33 @@ jobs:
           path: source-repo
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract app icon from IPA
+      
+      - name: Download app icon
         run: |
           set -euo pipefail
-          APP_PATH=$(find ytextracted/Payload -maxdepth 1 -type d -name "*.app" -print -quit)
+          mkdir -p source-repo/assets
 
-          if [ -z "$APP_PATH" ]; then
-            echo "::error::No app bundle found"
-            exit 1
-          fi
+          curl -fsSL "https://itunes.apple.com/lookup?bundleId=com.google.ios.youtube" \
+            -o app-info.json
 
-          mkdir -p icon-assets
-          if [ -f "$APP_PATH/Assets.car" ]; then
-            brew tap szwathub/tap
-            brew trust --formula szwathub/tap/cartool
-            brew install cartool
-            cartool "$APP_PATH/Assets.car" icon-assets
-          fi
+          python3 - <<'PY'
+          import json
+          from urllib.request import urlretrieve
 
-          python3 - "$APP_PATH" <<'PY'
-          from pathlib import Path
-          import subprocess
-          import shutil
-          import sys
+          with open("app-info.json", encoding="utf-8") as f:
+              data = json.load(f)
 
-          app = Path(sys.argv[1])
-          files = list(app.glob("*.png"))
-          files += list(Path("icon-assets").rglob("*.png"))
+          if not data.get("results"):
+              raise SystemExit("App Store icon not found")
 
-          ranked = []
-          for path in files:
-              try:
-                  result = subprocess.check_output(
-                      ["sips", "-g", "pixelWidth", "-g",
-                       "pixelHeight", str(path)], text=True
-                  )
-                  dims = [
-                      int(line.split()[-1])
-                      for line in result.splitlines()
-                      if "pixelWidth:" in line or "pixelHeight:" in line
-                  ]
-                  if len(dims) == 2 and dims[0] == dims[1]:
-                      score = 1 if "icon" in path.name.lower() else 0
-                      ranked.append((score, dims[0], path))
-              except Exception:
-                  pass
+          icon_url = data["results"][0].get("artwork512") or data["results"][0].get("artworkUrl512")
+          if not icon_url:
+              raise SystemExit("Icon URL missing")
 
-          if not ranked:
-              raise SystemExit("No square PNG icon found")
-
-          ranked.sort(key=lambda x: (x[0], x[1]), reverse=True)
-          source = ranked[0][2]
-          target = Path("source-repo/assets/maxtube-icon.png")
-          target.parent.mkdir(parents=True, exist_ok=True)
-          shutil.copy2(source, target)
-          print("Icon extracted:", source)
+          urlretrieve(icon_url, "source-repo/assets/maxtube-icon.png")
+          print("App icon downloaded successfully")
           PY
+
 
       - name: Update AltStore source
         env:
