@@ -308,6 +308,7 @@ jobs:
           mkdir -p icon-assets
           if [ -f "$APP_PATH/Assets.car" ]; then
             brew tap szwathub/tap
+            brew trust --formula szwathub/tap/cartool
             brew install cartool
             cartool "$APP_PATH/Assets.car" icon-assets
           fi
