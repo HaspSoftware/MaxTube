@@ -286,3 +286,104 @@ jobs:
       - name: Output Release URL
         run: |
           echo "::notice::🚀Build completed! Release available at: https://github.com/${{ github.repository }}/releases" 
+
+      - name: Checkout source repository
+        uses: actions/checkout@v6.0.2
+        with:
+          repository: ${{ github.repository }}
+          ref: main
+          path: source-repo
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update AltStore source
+        env:
+          REPOSITORY: ${{ github.repository }}
+          RUN_NUMBER: ${{ github.run_number }}
+          YT_VERSION: ${{ env.YT_VERSION }}
+          TWEAK_VERSION: ${{ inputs.tweak_version }}
+          IPA_FILE: ${{ env.RELEASE_PREFIX }}_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa
+          BUNDLE_ID: ${{ inputs.bundle_id }}
+        run: |
+          set -euo pipefail
+
+          python3 - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from datetime import datetime, timezone
+          from urllib.parse import quote
+
+          repo = Path("source-repo/altstore.json")
+          yt = os.environ["YT_VERSION"]
+          tweak = os.environ["TWEAK_VERSION"]
+          run = os.environ["RUN_NUMBER"]
+          bundle = os.environ["BUNDLE_ID"]
+          ipa = os.environ["IPA_FILE"]
+          repository = os.environ["REPOSITORY"]
+
+          tag = f"{tweak}_{yt}({run})"
+          version = f"{yt}-{tweak}.{run}"
+
+          download_url = (
+              f"https://github.com/{repository}/releases/download/"
+              f"{quote(tag, safe='')}/{quote(ipa, safe='')}"
+          )
+
+          ipa_path = Path(ipa)
+          if not ipa_path.is_file():
+              raise FileNotFoundError(f"IPA not found: {ipa}")
+
+          data = {
+              "name": "HaspSoftware MaxTube",
+              "identifier": "com.haspsoftware.maxtube.source",
+              "apps": [],
+              "news": []
+          }
+
+          if repo.exists():
+              data = json.loads(repo.read_text(encoding="utf-8"))
+
+          app = next(
+              (a for a in data["apps"]
+               if a.get("bundleIdentifier") == bundle),
+              None
+          )
+
+          if app is None:
+              app = {
+                  "name": "MaxTube",
+                  "bundleIdentifier": bundle,
+                  "developerName": "HaspSoftware",
+                  "subtitle": "MaxTube for iOS",
+                  "localizedDescription": "MaxTube IPA builds.",
+                  "tintColor": "#E62117",
+                  "category": "entertainment",
+                  "versions": []
+              }
+              data["apps"].append(app)
+
+          app["versions"].insert(0, {
+              "version": version,
+              "date": datetime.now(timezone.utc).isoformat(
+                  timespec="seconds"
+              ).replace("+00:00", "Z"),
+              "downloadURL": download_url,
+              "size": ipa_path.stat().st_size
+          })
+
+          repo.write_text(
+              json.dumps(data, indent=2, ensure_ascii=False) + "\n",
+              encoding="utf-8"
+          )
+
+          print("AltStore source updated:", download_url)
+          PY
+
+          git -C source-repo config user.name "github-actions[bot]"
+          git -C source-repo config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C source-repo add altstore.json
+
+          if ! git -C source-repo diff --cached --quiet; then
+            git -C source-repo commit -m "Update MaxTube AltStore source"
+            git -C source-repo push origin HEAD:main
+          fi
