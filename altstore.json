@@ -1,0 +1,24 @@
+{
+  "name": "HaspSoftware MaxTube",
+  "identifier": "com.haspsoftware.maxtube.source",
+  "apps": [
+    {
+      "name": "MaxTube",
+      "bundleIdentifier": "com.google.ios.youtube",
+      "developerName": "HaspSoftware",
+      "subtitle": "MaxTube for iOS",
+      "localizedDescription": "MaxTube IPA builds.",
+      "tintColor": "#E62117",
+      "category": "entertainment",
+      "versions": [
+        {
+          "version": "21.45.4-6.0.2",
+          "date": "2026-11-14T15:43:32Z",
+          "downloadURL": "https://github.com/HaspSoftware/MaxTube/releases/download/6.0_21.45.4%282%29/MaxTube_21.45.4_6.0.ipa",
+          "size": 152632183
+        }
+      ]
+    }
+  ],
+  "news": []
+}
