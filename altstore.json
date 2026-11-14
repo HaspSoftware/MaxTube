@@ -12,12 +12,19 @@
       "category": "entertainment",
       "versions": [
         {
+          "version": "21.45.4-6.0.5",
+          "date": "2026-11-14T21:08:32Z",
+          "downloadURL": "https://github.com/HaspSoftware/MaxTube/releases/download/6.0_21.45.4%285%29/YTPlus_21.45.4_6.0.ipa",
+          "size": 151904075
+        },
+        {
           "version": "21.45.4-6.0.2",
           "date": "2026-11-14T15:43:32Z",
           "downloadURL": "https://github.com/HaspSoftware/MaxTube/releases/download/6.0_21.45.4%282%29/MaxTube_21.45.4_6.0.ipa",
           "size": 152632183
         }
-      ]
+      ],
+      "iconURL": "https://raw.githubusercontent.com/HaspSoftware/MaxTube/main/assets/maxtube-icon.png"
     }
   ],
   "news": []
