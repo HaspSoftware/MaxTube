@@ -243,6 +243,7 @@ jobs:
             [ -f "$f" ] && tweaks="$tweaks $f"
           done
           cyan -i youtube.ipa -o "Vural-Umran_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa" -uwef $tweaks -n "Vural♾️Ümran" -b "${{ inputs.bundle_id }}"
+
           cyan -i youtube.ipa -o "Umran-Vural_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa" -uwef $tweaks -n "Ümran♾️Vural" -b "${{ inputs.bundle_id }}"
           
       - name: Prepare Releases Notes
@@ -371,6 +372,12 @@ jobs:
               release_data = json.load(response)
 
           release_assets = release_data.get("assets", [])
+          print("Release tag:", tag)
+          print("Release asset count:", len(release_assets))
+          print("Release asset names:", [
+          item.get("name") for item in release_assets
+          ])
+          
           version = f"{yt}-{tweak}.{run}"
           date = datetime.now(timezone.utc).isoformat(
               timespec="seconds"
@@ -396,11 +403,11 @@ jobs:
           builds = [
               {
                   "name": "Vural♾️Ümran",
-                  "filename": "Vural-Umran",
+                  "filename": "Vural-Ümran",
               },
               {
                   "name": "Ümran♾️Vural",
-                  "filename": "Umran-Vural",
+                  "filename": "Ümran-Vural",
               }
           ]
 
