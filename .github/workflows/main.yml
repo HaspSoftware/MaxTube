@@ -243,7 +243,7 @@ jobs:
             [ -f "$f" ] && tweaks="$tweaks $f"
           done
           cyan -i youtube.ipa -o "Vural♾️Ümran_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa" -uwef $tweaks -n "Vural♾️Ümran" -b "${{ inputs.bundle_id }}"
-          cyan -i youtube.ipa -o "Ümran♾️Vural_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa" -uwef $tweaks -n "Ümran♾️Vural" -b "${{ inputs.bundle_id }}.umran"
+          cyan -i youtube.ipa -o "Ümran♾️Vural_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa" -uwef $tweaks -n "Ümran♾️Vural" -b "${{ inputs.bundle_id }}"
           
       - name: Prepare Releases Notes
         run: |
