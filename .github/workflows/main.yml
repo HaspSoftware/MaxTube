@@ -235,7 +235,7 @@ jobs:
       - name: Install cyan
         run: pipx install --force https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip
 
-            - name: Inject Vural♾️Ümran and Ümran♾️Vural IPAs
+      - name: Inject Vural♾️Ümran and Ümran♾️Vural IPAs
         run: |
           set -euo pipefail
           tweaks="ytplus.deb OpenYoutubeSafariExtension.appex"
@@ -327,14 +327,14 @@ jobs:
           PY
 
 
-            - name: Update AltStore source
+        - name: Update AltStore source
         env:
           REPOSITORY: ${{ github.repository }}
           RUN_NUMBER: ${{ github.run_number }}
           YT_VERSION: ${{ env.YT_VERSION }}
           TWEAK_VERSION: ${{ inputs.tweak_version }}
-          VURAL_BUNDLE_ID: ${{ inputs.bundle_id }}
-          UMRAN_BUNDLE_ID: "${{ inputs.bundle_id }}.umran"
+          Vural♾️Ümran_BUNDLE_ID: ${{ inputs.bundle_id }}
+          Ümran♾️Vural_BUNDLE_ID: "${{ inputs.bundle_id }}"
         run: |
           set -euo pipefail
 
