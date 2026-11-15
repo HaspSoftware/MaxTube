@@ -499,9 +499,12 @@ jobs:
 
           git -C source-repo config user.name "github-actions[bot]"
           git -C source-repo config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git -C source-repo add vuralsacan.json assets/maxtube-icon.png
 
           if ! git -C source-repo diff --cached --quiet; then
-            git -C source-repo add vuralsacan.json assets/maxtube-icon.png
+            git -C source-repo commit -m "Update AltStore source"
             git -C source-repo push origin HEAD:main
+          else
+            echo "No changes to commit."
           fi
