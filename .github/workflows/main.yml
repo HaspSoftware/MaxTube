@@ -326,14 +326,14 @@ jobs:
           print("App icon downloaded successfully")
           PY
 
-      - name: Update AltStore sources
+      
+      - name: Update AltStore source
         env:
           REPOSITORY: ${{ github.repository }}
           RUN_NUMBER: ${{ github.run_number }}
           YT_VERSION: ${{ env.YT_VERSION }}
           TWEAK_VERSION: ${{ inputs.tweak_version }}
-          VURAL_BUNDLE_ID: ${{ inputs.bundle_id }}
-          UMRAN_BUNDLE_ID: ${{ inputs.bundle_id }}
+          BUNDLE_ID: ${{ inputs.bundle_id }}
         run: |
           set -euo pipefail
 
@@ -348,6 +348,7 @@ jobs:
           run = os.environ["RUN_NUMBER"]
           yt = os.environ["YT_VERSION"]
           tweak = os.environ["TWEAK_VERSION"]
+          bundle = os.environ["BUNDLE_ID"]
 
           tag = f"{tweak}_{yt}({run})"
           version = f"{yt}-{tweak}.{run}"
@@ -360,54 +361,55 @@ jobs:
               f"{repository}/main/assets/maxtube-icon.png"
           )
 
+          repo = Path("source-repo/altstore.json")
+
+          if repo.exists():
+              data = json.loads(repo.read_text(encoding="utf-8"))
+          else:
+              data = {
+                  "name": "MaxTube",
+                  "identifier": "com.haspsoftware.maxtube.source",
+                  "apps": [],
+                  "news": []
+              }
+
           builds = [
               {
                   "name": "Vural♾️Ümran",
-                  "bundle": os.environ["VURAL_BUNDLE_ID"],
-                  "filename": "Vural♾️Ümran",
-                  "source": "altstore.json"
+                  "filename": "Vural♾️Ümran"
               },
               {
                   "name": "Ümran♾️Vural",
-                  "bundle": os.environ["UMRAN_BUNDLE_ID"],
-                  "filename": "Ümran♾️Vural",
-                  "source": "umran.json"
+                  "filename": "Ümran♾️Vural"
               }
           ]
 
-          for build in builds:
+          for index, build in enumerate(builds):
               app_name = build["name"]
-              bundle = build["bundle"]
               ipa = f'{build["filename"]}_{yt}_{tweak}.ipa'
-
               ipa_path = Path(ipa)
+
               if not ipa_path.is_file():
                   raise FileNotFoundError(f"IPA not found: {ipa}")
-
-              source_path = Path("source-repo") / build["source"]
-
-              if source_path.exists():
-                  data = json.loads(
-                      source_path.read_text(encoding="utf-8")
-                  )
-              else:
-                  data = {
-                      "name": f"{app_name} Source",
-                      "identifier": (
-                          f"com.haspsoftware.maxtube."
-                          f"{'vural' if build['source'] == 'altstore.json' else 'umran'}.source"
-                      ),
-                      "apps": [],
-                      "news": []
-                  }
 
               app = next(
                   (
                       item for item in data["apps"]
                       if item.get("bundleIdentifier") == bundle
+                      and item.get("name") == app_name
                   ),
                   None
               )
+
+              # Eski tek uygulama kaydını ilk uygulamaya dönüştür.
+              if app is None and index == 0:
+                  app = next(
+                      (
+                          item for item in data["apps"]
+                          if item.get("bundleIdentifier") == bundle
+                      ),
+                      None
+                  )
 
               if app is None:
                   app = {
@@ -425,6 +427,7 @@ jobs:
               app["name"] = app_name
               app["bundleIdentifier"] = bundle
               app["developerName"] = app_name
+              app["subtitle"] = app_name
               app["iconURL"] = icon_url
 
               download_url = (
@@ -432,28 +435,32 @@ jobs:
                   f"{quote(tag, safe='')}/{quote(ipa, safe='')}"
               )
 
-              app.setdefault("versions", []).insert(0, {
+              versions = app.setdefault("versions", [])
+              versions[:] = [
+                  item for item in versions
+                  if item.get("version") != version
+              ]
+
+              versions.insert(0, {
                   "version": version,
                   "date": date,
                   "downloadURL": download_url,
                   "size": ipa_path.stat().st_size
               })
 
-              source_path.write_text(
-                  json.dumps(data, indent=2, ensure_ascii=False) + "\n",
-                  encoding="utf-8"
-              )
-
               print(f"Updated {app_name}: {download_url}")
 
+          repo.write_text(
+              json.dumps(data, indent=2, ensure_ascii=False) + "\n",
+              encoding="utf-8"
+          )
           PY
 
           git -C source-repo config user.name "github-actions[bot]"
           git -C source-repo config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git -C source-repo add altstore.json umran.json assets/maxtube-icon.png
+          git -C source-repo add altstore.json assets/maxtube-icon.png
 
           if ! git -C source-repo diff --cached --quiet; then
-            git -C source-repo commit -m "Update Vural and Umran AltStore sources"
+            git -C source-repo commit -m "Update both AltStore apps"
             git -C source-repo push origin HEAD:main
           fi
