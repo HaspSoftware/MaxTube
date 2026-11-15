@@ -131,7 +131,7 @@ on:
 
       display_name:
         description: "App Name (Optional)"
-        default: "YouTube"
+        default: "Vural♾️Ümran"
         required: true
         type: string
 
