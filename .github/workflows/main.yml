@@ -235,14 +235,16 @@ jobs:
       - name: Install cyan
         run: pipx install --force https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip
 
-      - name: Inject tweaks into IPA
+            - name: Inject Vural♾️Ümran and Ümran♾️Vural IPAs
         run: |
+          set -euo pipefail
           tweaks="ytplus.deb OpenYoutubeSafariExtension.appex"
           for f in *.deb; do
             [ -f "$f" ] && tweaks="$tweaks $f"
           done
-          cyan -i youtube.ipa -o ${{ env.RELEASE_PREFIX }}_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa -uwef $tweaks -n "${{ inputs.display_name }}" -b ${{ inputs.bundle_id }}
-  
+          cyan -i youtube.ipa -o "Vural♾️Ümran_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa" -uwef $tweaks -n "Vural♾️Ümran" -b "${{ inputs.bundle_id }}"
+          cyan -i youtube.ipa -o "Ümran♾️Vural_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa" -uwef $tweaks -n "Ümran♾️Vural" -b "${{ inputs.bundle_id }}.umran"
+          
       - name: Prepare Releases Notes
         run: |
           sed "s/%yt_version%/${{ env.YT_VERSION }}/g; s/%ytlite_version%/${{ inputs.tweak_version }}/g; s/%release_prefix%/${{ env.RELEASE_PREFIX }}/g" \
@@ -279,7 +281,9 @@ jobs:
         with:
           tag_name: ${{ inputs.tweak_version }}_${{ env.YT_VERSION }}(${{ github.run_number }})
           name: ${{ env.RELEASE_PREFIX }} ${{ inputs.tweak_version }} and ${{ env.YT_VERSION }} ${{ env.FOR_IOS15 }}
-          files: ${{ env.RELEASE_PREFIX }}_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa
+          files: |
+            Vural♾️Ümran_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa
+            Ümran♾️Vural_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa
           draft: false
           body_path: ${{ env.NOTES_SELECTED }}
 
@@ -323,14 +327,14 @@ jobs:
           PY
 
 
-      - name: Update AltStore source
+            - name: Update AltStore source
         env:
           REPOSITORY: ${{ github.repository }}
           RUN_NUMBER: ${{ github.run_number }}
           YT_VERSION: ${{ env.YT_VERSION }}
           TWEAK_VERSION: ${{ inputs.tweak_version }}
-          IPA_FILE: ${{ env.RELEASE_PREFIX }}_${{ env.YT_VERSION }}_${{ inputs.tweak_version }}.ipa
-          BUNDLE_ID: ${{ inputs.bundle_id }}
+          VURAL_BUNDLE_ID: ${{ inputs.bundle_id }}
+          UMRAN_BUNDLE_ID: "${{ inputs.bundle_id }}.umran"
         run: |
           set -euo pipefail
 
@@ -341,75 +345,99 @@ jobs:
           from datetime import datetime, timezone
           from urllib.parse import quote
 
-          repo = Path("source-repo/altstore.json")
+          repository = os.environ["REPOSITORY"]
+          run = os.environ["RUN_NUMBER"]
           yt = os.environ["YT_VERSION"]
           tweak = os.environ["TWEAK_VERSION"]
-          run = os.environ["RUN_NUMBER"]
-          bundle = os.environ["BUNDLE_ID"]
-          ipa = os.environ["IPA_FILE"]
-          repository = os.environ["REPOSITORY"]
 
           tag = f"{tweak}_{yt}({run})"
           version = f"{yt}-{tweak}.{run}"
+          date = datetime.now(timezone.utc).isoformat(
+              timespec="seconds"
+          ).replace("+00:00", "Z")
 
-          download_url = (
-              f"https://github.com/{repository}/releases/download/"
-              f"{quote(tag, safe='')}/{quote(ipa, safe='')}"
+          icon_url = (
+              f"https://raw.githubusercontent.com/"
+              f"{repository}/main/assets/maxtube-icon.png"
           )
 
-          ipa_path = Path(ipa)
-          if not ipa_path.is_file():
-              raise FileNotFoundError(f"IPA not found: {ipa}")
-
-          data = {
-              "name": "HaspSoftware MaxTube",
-              "identifier": "com.haspsoftware.maxtube.source",
-              "apps": [],
-              "news": []
-          }
+          repo = Path("source-repo/altstore.json")
 
           if repo.exists():
               data = json.loads(repo.read_text(encoding="utf-8"))
-
-          app = next(
-              (a for a in data["apps"]
-               if a.get("bundleIdentifier") == bundle),
-              None
-          )
-
-          if app is None:
-              app = {
+          else:
+              data = {
                   "name": "MaxTube",
-                  "bundleIdentifier": bundle,
-                  "developerName": "HaspSoftware",
-                  "subtitle": "MaxTube for iOS",
-                  "localizedDescription": "MaxTube IPA builds.",
-                  "tintColor": "#E62117",
-                  "category": "entertainment",
-                  "versions": []
+                  "identifier": "com.haspsoftware.maxtube.source",
+                  "apps": [],
+                  "news": []
               }
-              data["apps"].append(app)
 
-              app["name"] = "Vural♾️Ümran"
-            app["developerName"] = "Vural♾️Ümran"
-          app["iconURL"] = f"https://raw.githubusercontent.com/{repository}/main/assets/maxtube-icon.png"
+          builds = [
+              {
+                  "name": "Vural♾️Ümran",
+                  "bundle": os.environ["VURAL_BUNDLE_ID"],
+                  "filename": "Vural♾️Ümran"
+              },
+              {
+                  "name": "Ümran♾️Vural",
+                  "bundle": os.environ["UMRAN_BUNDLE_ID"],
+                  "filename": "Ümran♾️Vural"
+              }
+          ]
 
-          app["versions"].insert(0, {
-              "version": version,
-              "date": datetime.now(timezone.utc).isoformat(
-                  timespec="seconds"
-              ).replace("+00:00", "Z"),
-              "downloadURL": download_url,
-              "size": ipa_path.stat().st_size
-          })
+          for build in builds:
+              app_name = build["name"]
+              bundle = build["bundle"]
+              ipa = f'{build["filename"]}_{yt}_{tweak}.ipa'
 
+              ipa_path = Path(ipa)
+              if not ipa_path.is_file():
+                  raise FileNotFoundError(f"IPA not found: {ipa}")
+
+              app = next(
+                  (
+                      item for item in data["apps"]
+                      if item.get("bundleIdentifier") == bundle
+                  ),
+                  None
+              )
+
+              if app is None:
+                  app = {
+                      "name": app_name,
+                      "bundleIdentifier": bundle,
+                      "developerName": app_name,
+                      "subtitle": app_name,
+                      "localizedDescription": f"{app_name} IPA build.",
+                      "tintColor": "#E62117",
+                      "category": "entertainment",
+                      "versions": []
+                  }
+                  data["apps"].append(app)
+
+              app["name"] = app_name
+              app["developerName"] = app_name
+              app["iconURL"] = icon_url
+
+              download_url = (
+                  f"https://github.com/{repository}/releases/download/"
+                  f"{quote(tag, safe='')}/{quote(ipa, safe='')}"
+              )
+
+              app.setdefault("versions", []).insert(0, {
+                  "version": version,
+                  "date": date,
+                  "downloadURL": download_url,
+                  "size": ipa_path.stat().st_size
+              })
+
+              print(f"Updated {app_name}: {download_url}")
 
           repo.write_text(
               json.dumps(data, indent=2, ensure_ascii=False) + "\n",
               encoding="utf-8"
           )
-
-          print("AltStore source updated:", download_url)
           PY
 
           git -C source-repo config user.name "github-actions[bot]"
@@ -417,6 +445,6 @@ jobs:
           git -C source-repo add altstore.json assets/maxtube-icon.png
 
           if ! git -C source-repo diff --cached --quiet; then
-            git -C source-repo commit -m "Update MaxTube AltStore source"
+            git -C source-repo commit -m "Update both AltStore apps"
             git -C source-repo push origin HEAD:main
           fi
