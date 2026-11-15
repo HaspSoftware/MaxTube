@@ -12,6 +12,12 @@
       "category": "entertainment",
       "versions": [
         {
+          "version": "21.45.4-6.0.18",
+          "date": "2026-11-15T10:33:25Z",
+          "downloadURL": "https://github.com/HaspSoftware/MaxTube/releases/download/6.0_21.45.4%2818%29/Vural%E2%99%BE%EF%B8%8F%C3%9Cmran_21.45.4_6.0.ipa",
+          "size": 151905714
+        },
+        {
           "version": "21.45.4-6.0.12",
           "date": "2026-11-15T08:43:36Z",
           "downloadURL": "https://github.com/HaspSoftware/MaxTube/releases/download/6.0_21.45.4%2812%29/Vural%E2%99%BE%EF%B8%8F%C3%9Cmran_21.45.4_6.0.ipa",
