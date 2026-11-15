@@ -396,15 +396,11 @@ jobs:
           builds = [
               {
                   "name": "Vural♾️Ümran",
-                  "bundle": os.environ["VURAL_BUNDLE_ID"],
                   "filename": "Vural-Umran",
-                  "source": "vuralsacan.json"
               },
               {
                   "name": "Ümran♾️Vural",
-                  "bundle": os.environ["UMRAN_BUNDLE_ID"],
                   "filename": "Umran-Vural",
-                  "source": "vuralsacan.json"
               }
           ]
 
