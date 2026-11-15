@@ -3,10 +3,10 @@
   "identifier": "com.haspsoftware.maxtube.source",
   "apps": [
     {
-      "name": "Vural∞Ümran",
+      "name": "Vural♾️Ümran",
       "bundleIdentifier": "com.google.ios.youtube",
-      "developerName": "Vural∞Ümran",
-      "subtitle": "Vural∞Ümran",
+      "developerName": "Vural♾️Ümran",
+      "subtitle": "Vural♾️Ümran",
       "localizedDescription": "MaxTube IPA builds.",
       "tintColor": "#E62117",
       "category": "entertainment",
@@ -45,11 +45,11 @@
       "iconURL": "https://raw.githubusercontent.com/HaspSoftware/MaxTube/main/assets/maxtube-icon.png"
     },
     {
-      "name": "Ümran∞Vural",
+      "name": "Ümran♾️Vural",
       "bundleIdentifier": "com.google.ios.youtube",
-      "developerName": "Ümran∞Vural",
-      "subtitle": "Ümran∞Vural",
-      "localizedDescription": "Ümran∞Vural IPA build.",
+      "developerName": "Ümran♾️Vural",
+      "subtitle": "Ümran♾️Vural",
+      "localizedDescription": "Ümran♾️Vural IPA build.",
       "tintColor": "#E62117",
       "category": "entertainment",
       "versions": [
@@ -64,3 +64,4 @@
     }
   ],
   "news": []
+}
