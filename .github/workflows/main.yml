@@ -390,6 +390,8 @@ jobs:
               }
               data["apps"].append(app)
 
+              app["name"] = "Vural♾️Ümran"
+            app["developerName"] = "Vural♾️Ümran"
           app["iconURL"] = f"https://raw.githubusercontent.com/{repository}/main/assets/maxtube-icon.png"
 
           app["versions"].insert(0, {
