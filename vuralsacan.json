@@ -12,6 +12,12 @@
       "category": "entertainment",
       "versions": [
         {
+          "version": "21.46.3-6.0.26",
+          "date": "2026-11-15T21:32:02Z",
+          "downloadURL": "https://github.com/HaspSoftware/MaxTube/releases/download/6.0_21.46.3%2826%29/Vural-Umran_21.46.3_6.0.ipa",
+          "size": 154020309
+        },
+        {
           "version": "21.45.4-6.0.25",
           "date": "2026-11-15T13:02:05Z",
           "downloadURL": "https://github.com/HaspSoftware/MaxTube/releases/download/6.0_21.45.4%2825%29/Vural-Umran_21.45.4_6.0.ipa",
@@ -71,6 +77,12 @@
       "tintColor": "#E62117",
       "category": "entertainment",
       "versions": [
+        {
+          "version": "21.46.3-6.0.26",
+          "date": "2026-11-15T21:32:02Z",
+          "downloadURL": "https://github.com/HaspSoftware/MaxTube/releases/download/6.0_21.46.3%2826%29/Umran-Vural_21.46.3_6.0.ipa",
+          "size": 154020310
+        },
         {
           "version": "21.45.4-6.0.25",
           "date": "2026-11-15T13:02:05Z",
